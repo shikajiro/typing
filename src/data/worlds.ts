@@ -1,4 +1,4 @@
-// ワールド（れんしゅうコース）。戦国の舞台を語長でやさしい順に並べる。
+// ワールド（ステージ）。戦国の舞台を語長でやさしい順に並べる。
 
 export interface World {
   id: number;
@@ -8,8 +8,10 @@ export interface World {
 
 export const WORLDS: World[] = [
   { id: 1, name: "あしがるの むら", order: 1 },
-  { id: 2, name: "ぶしょうの しろ", order: 2 },
-  { id: 3, name: "てんかの いくさ", order: 3 }
+  { id: 2, name: "ぶしょうの やかた", order: 2 },
+  { id: 3, name: "おおきな しろ", order: 3 },
+  { id: 4, name: "がっせんの の", order: 4 },
+  { id: 5, name: "てんかの みち", order: 5 }
 ];
 
 export function getWorld(id: number): World {

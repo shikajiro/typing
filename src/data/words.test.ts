@@ -38,24 +38,23 @@ describe("sengoku word data invariants", () => {
 });
 
 describe("difficulty grows by romaji length per world", () => {
-  it("world 1 words are at most 5 letters", () => {
-    for (const entry of wordsByWorld(1)) {
-      expect(entry.word.length).toBeLessThanOrEqual(5);
-    }
-  });
+  const ranges: Record<number, [number, number]> = {
+    1: [1, 4],
+    2: [5, 5],
+    3: [6, 6],
+    4: [7, 7],
+    5: [8, 99]
+  };
 
-  it("world 2 words are 5 to 7 letters", () => {
-    for (const entry of wordsByWorld(2)) {
-      expect(entry.word.length).toBeGreaterThanOrEqual(5);
-      expect(entry.word.length).toBeLessThanOrEqual(7);
-    }
-  });
-
-  it("world 3 words are 7 or more letters", () => {
-    for (const entry of wordsByWorld(3)) {
-      expect(entry.word.length).toBeGreaterThanOrEqual(7);
-    }
-  });
+  for (const world of [1, 2, 3, 4, 5]) {
+    it(`world ${world} words fit its length range`, () => {
+      const [min, max] = ranges[world];
+      for (const entry of wordsByWorld(world)) {
+        expect(entry.word.length).toBeGreaterThanOrEqual(min);
+        expect(entry.word.length).toBeLessThanOrEqual(max);
+      }
+    });
+  }
 
   it("each world has at least 6 words", () => {
     for (const world of WORLDS) {
@@ -65,15 +64,15 @@ describe("difficulty grows by romaji length per world", () => {
 });
 
 describe("worlds", () => {
-  it("has 3 worlds with unique ids", () => {
-    expect(WORLDS).toHaveLength(3);
-    expect(new Set(WORLDS.map((world) => world.id)).size).toBe(3);
+  it("has 5 worlds with unique ids", () => {
+    expect(WORLDS).toHaveLength(5);
+    expect(new Set(WORLDS.map((world) => world.id)).size).toBe(5);
   });
 
   it("links worlds in order and ends with null", () => {
     expect(nextWorldId(1)).toBe(2);
-    expect(nextWorldId(2)).toBe(3);
-    expect(nextWorldId(3)).toBeNull();
+    expect(nextWorldId(4)).toBe(5);
+    expect(nextWorldId(5)).toBeNull();
   });
 
   it("getWorld and getWord throw on unknown ids (no silent fallback)", () => {
