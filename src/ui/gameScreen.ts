@@ -2,10 +2,10 @@
 
 import { getKeySpec } from "../core/keyboardLayout";
 import { collectId, isWorldCleared, unlockWorld } from "../core/progress";
-import { createWordSession, expectedCode, pressKey, type WordSession } from "../core/typingEngine";
-import { type GameWord, wordsByWorld, worldWordIds } from "../data/words";
+import { createWordSession, expectedCode, pressKey, progressChars, type WordSession } from "../core/typingEngine";
+import { type GameWord, romajiOf, wordsByWorld, worldWordIds } from "../data/words";
 import { getWorld, nextWorldId } from "../data/worlds";
-import { clear, el, ruby } from "./dom";
+import { clear, el, renderRuby, ruby } from "./dom";
 import { KeyboardView } from "./keyboardView";
 import type { AppContext } from "./types";
 
@@ -21,12 +21,14 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   let queueIndex = 0;
 
   const timeouts: number[] = [];
-  let session: WordSession = createWordSession(queue[0].word);
+  let session: WordSession = createWordSession(queue[0].reading);
 
   const keyboard = new KeyboardView();
   keyboard.setAssistLevel(startProgress.settings.assistLevel);
 
   const figureEl = el("div", { class: "creature", text: "❔" });
+  const imgEl = el("img", { class: "portrait" });
+  imgEl.style.display = "none";
   const nameEl = el("div", { class: "word-name" });
   const descEl = el("div", { class: "word-desc" });
   const tilesEl = el("div", { class: "word-tiles" });
@@ -40,7 +42,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   });
 
   const stage = el("main", { class: "stage" }, [
-    el("div", { class: "egg-area" }, [figureEl]),
+    el("div", { class: "egg-area" }, [figureEl, imgEl]),
     nameEl,
     descEl,
     tilesEl,
@@ -68,9 +70,10 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   }
 
   function updateTiles(): void {
+    const done = progressChars(session);
     tileEls.forEach((tile, i) => {
-      tile.classList.toggle("is-done", i < session.index);
-      tile.classList.toggle("is-current", i === session.index && !session.done);
+      tile.classList.toggle("is-done", i < done);
+      tile.classList.toggle("is-current", i === done && !session.done);
     });
   }
 
@@ -88,13 +91,16 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   }
 
   function startWord(entry: GameWord): void {
-    session = createWordSession(entry.word);
+    session = createWordSession(entry.reading);
     figureEl.textContent = "❔";
     figureEl.classList.remove("pop");
+    figureEl.style.display = "";
+    imgEl.style.display = "none";
+    imgEl.classList.remove("pop");
     nameEl.replaceChildren(ruby(entry.name, entry.reading));
-    descEl.textContent = entry.description;
+    descEl.replaceChildren(...renderRuby(entry.description));
 
-    tileEls = Array.from(entry.word).map((letter) => el("div", { class: "tile", text: letter.toUpperCase() }));
+    tileEls = Array.from(romajiOf(entry)).map((letter) => el("div", { class: "tile", text: letter.toUpperCase() }));
     tilesEl.replaceChildren(...tileEls);
 
     keyboard.setAssistLevel(ctx.getProgress().settings.assistLevel);
@@ -105,8 +111,15 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   }
 
   function reveal(entry: GameWord): void {
-    figureEl.textContent = entry.emoji;
-    figureEl.classList.add("pop");
+    if (entry.image) {
+      imgEl.src = entry.image;
+      imgEl.style.display = "block";
+      imgEl.classList.add("pop");
+      figureEl.style.display = "none";
+    } else {
+      figureEl.textContent = entry.emoji;
+      figureEl.classList.add("pop");
+    }
     keyboard.highlightNext(null);
     hintEl.replaceChildren(ruby(entry.name, entry.reading), document.createTextNode(" を ゲット！"));
     ctx.audio.sfx("hatch");

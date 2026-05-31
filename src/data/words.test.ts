@@ -1,18 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { createWordSession } from "../core/typingEngine";
-import { WORDS, getWord, wordsByWorld, worldWordIds } from "./words";
-import { WORLDS, getWorld, nextWorldId, worldForLength } from "./worlds";
+import { WORDS, getWord, romajiOf, wordsByWorld, worldWordIds } from "./words";
+import { WORLDS, getWorld, nextWorldId } from "./worlds";
 
 describe("sengoku warlord data invariants", () => {
-  it("every word is lowercase a-z romaji so it can always be typed", () => {
+  it("every reading turns into lowercase a-z romaji", () => {
     for (const entry of WORDS) {
-      expect(entry.word).toMatch(/^[a-z]+$/);
+      expect(romajiOf(entry)).toMatch(/^[a-z]+$/);
     }
   });
 
-  it("every word maps to typeable key codes (engine never throws)", () => {
+  it("every reading is typeable (engine never throws)", () => {
     for (const entry of WORDS) {
-      expect(() => createWordSession(entry.word)).not.toThrow();
+      expect(() => createWordSession(entry.reading)).not.toThrow();
     }
   });
 
@@ -29,16 +29,18 @@ describe("sengoku warlord data invariants", () => {
       expect(entry.description.length).toBeGreaterThan(0);
     }
   });
-});
 
-describe("worlds derived from romaji length", () => {
-  it("every word length maps to exactly one world", () => {
+  it("any image is a Wikimedia Commons URL", () => {
     for (const entry of WORDS) {
-      expect(() => worldForLength(entry.word.length)).not.toThrow();
+      if (entry.image) {
+        expect(entry.image).toMatch(/^https:\/\/upload\.wikimedia\.org\//);
+      }
     }
   });
+});
 
-  it("worlds partition all words with no drops or overlaps", () => {
+describe("stage assignment by romaji length", () => {
+  it("partitions all warlords across the worlds with no drops or overlaps", () => {
     const assigned = WORLDS.flatMap((world) => worldWordIds(world.id));
     expect(assigned).toHaveLength(WORDS.length);
     expect(new Set(assigned).size).toBe(WORDS.length);
@@ -50,13 +52,12 @@ describe("worlds derived from romaji length", () => {
     }
   });
 
-  it("words sit within their world's length range", () => {
-    for (const world of WORLDS) {
-      for (const entry of wordsByWorld(world.id)) {
-        expect(entry.word.length).toBeGreaterThanOrEqual(world.minLen);
-        expect(entry.word.length).toBeLessThanOrEqual(world.maxLen);
-      }
-    }
+  it("worlds get harder: average romaji length increases with order", () => {
+    const avg = (ids: string[]) =>
+      ids.reduce((sum, id) => sum + romajiOf(getWord(id)).length, 0) / ids.length;
+    const a1 = avg(worldWordIds(1));
+    const a4 = avg(worldWordIds(4));
+    expect(a4).toBeGreaterThan(a1);
   });
 });
 

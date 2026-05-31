@@ -1,8 +1,8 @@
 // ずかん。あつめた戦国ことばは絵と名前が見える。まだのものは「？？？」。
 
-import { wordsByWorld } from "../data/words";
+import { romajiOf, wordsByWorld } from "../data/words";
 import { WORLDS } from "../data/worlds";
-import { el, ruby } from "./dom";
+import { el, renderRuby, ruby } from "./dom";
 import type { AppContext } from "./types";
 
 export function renderZukanScreen(ctx: AppContext): () => void {
@@ -17,11 +17,18 @@ export function renderZukanScreen(ctx: AppContext): () => void {
           el("div", { class: "zukan-name", text: "？？？" })
         ]);
       }
+      let head: HTMLElement;
+      if (entry.image) {
+        head = el("img", { class: "zukan-portrait" });
+        (head as HTMLImageElement).src = entry.image;
+      } else {
+        head = el("div", { class: "zukan-emoji", text: entry.emoji });
+      }
       return el("div", { class: "zukan-cell" }, [
-        el("div", { class: "zukan-emoji", text: entry.emoji }),
+        head,
         el("div", { class: "zukan-name" }, [ruby(entry.name, entry.reading)]),
-        el("div", { class: "zukan-kana", text: entry.word.toUpperCase() }),
-        el("div", { class: "zukan-desc", text: entry.description })
+        el("div", { class: "zukan-kana", text: romajiOf(entry).toUpperCase() }),
+        el("div", { class: "zukan-desc" }, renderRuby(entry.description))
       ]);
     });
 

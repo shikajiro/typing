@@ -9,7 +9,7 @@ type Options = {
 export function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
   options: Options = {},
-  children: Array<HTMLElement | string> = []
+  children: Array<Node | string> = []
 ): HTMLElementTagNameMap[K] {
   const node = document.createElement(tag);
   if (options.class) node.className = options.class;
@@ -29,6 +29,26 @@ export function ruby(base: string, furigana: string): HTMLElement {
   rt.textContent = furigana;
   node.append(rt);
   return node;
+}
+
+// "漢字[よみ]" の記法を含む文を、漢字部分だけ ruby（ふりがな）にして描画する。
+// 例: "尾張[おわり]の 大名[だいみょう]" → 尾張(おわり) と 大名(だいみょう) にふりがな。
+export function renderRuby(text: string): Array<HTMLElement | Text> {
+  const pattern = /([㐀-鿿々ヶ〆]+)\[([^\]]+)\]/g;
+  const nodes: Array<HTMLElement | Text> = [];
+  let last = 0;
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > last) {
+      nodes.push(document.createTextNode(text.slice(last, match.index)));
+    }
+    nodes.push(ruby(match[1], match[2]));
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) {
+    nodes.push(document.createTextNode(text.slice(last)));
+  }
+  return nodes;
 }
 
 export function clear(node: HTMLElement): void {
