@@ -46,6 +46,8 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
     hintEl
   ]);
 
+  const keyboardWrap = el("div", { class: "keyboard-wrap" }, [keyboard.el]);
+
   const screen = el("div", { class: "screen game-screen" }, [
     el("header", { class: "topbar" }, [
       el("button", { class: "back-button", text: "← もどる", onClick: () => ctx.navigate({ name: "worldmap" }) }),
@@ -53,7 +55,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
       countEl
     ]),
     stage,
-    el("div", { class: "keyboard-wrap" }, [keyboard.el])
+    keyboardWrap
   ]);
 
   let tileEls: HTMLElement[] = [];
@@ -131,6 +133,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
 
   function showWorldClear(nextId: number | null): void {
     ctx.audio.sfx("clear");
+    keyboardWrap.style.display = "none";
     const message = nextId !== null ? "つぎの ステージが あいたよ！" : "ぜんぶ あつめたね！てんかとういつ！";
     clear(stage);
     stage.append(
