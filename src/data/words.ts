@@ -1,7 +1,9 @@
-// 戦国ことば＝打つローマ字＋集める対象。戦国大名・武将・武具・用語をまぜる。
+// 戦国武将＝打つローマ字（フルネーム）＋集める対象。
 // id は word（ローマ字）と同じ（一意）。ローマ字は簡易ヘボン式（a-z、長音は省略）。
-// name は漢字、reading はふりがな（ひらがな）、emoji はシンボル。
-// 読みは Wikipedia「戦国大名」より裏取り。語長でワールド（ステージ）に割り当て、やさしい順に並べる。
+// name は漢字フルネーム、reading はふりがな（ひらがな）、emoji はシンボル、description はやさしい解説。
+// 名前・読みは Wikipedia「戦国大名」「各武将記事」を参考。所属ステージは worlds.ts が文字数から自動算出。
+
+import { worldForLength } from "./worlds";
 
 export interface GameWord {
   id: string;
@@ -9,79 +11,64 @@ export interface GameWord {
   name: string;
   reading: string;
   emoji: string;
-  worldId: number;
+  description: string;
 }
 
 export const WORDS: GameWord[] = [
-  // ── World 1「あしがるの むら」: 3〜4もじ ──
-  { id: "uma", word: "uma", name: "馬", reading: "うま", emoji: "🐎", worldId: 1 },
-  { id: "oda", word: "oda", name: "織田", reading: "おだ", emoji: "🔥", worldId: 1 },
-  { id: "ito", word: "ito", name: "伊東", reading: "いとう", emoji: "⚔️", worldId: 1 },
-  { id: "mori", word: "mori", name: "毛利", reading: "もうり", emoji: "⭐", worldId: 1 },
-  { id: "date", word: "date", name: "伊達", reading: "だて", emoji: "🌙", worldId: 1 },
-  { id: "hojo", word: "hojo", name: "北条", reading: "ほうじょう", emoji: "🔺", worldId: 1 },
-  { id: "yari", word: "yari", name: "槍", reading: "やり", emoji: "🗡️", worldId: 1 },
-  { id: "hata", word: "hata", name: "旗", reading: "はた", emoji: "🚩", worldId: 1 },
-  { id: "soma", word: "soma", name: "相馬", reading: "そうま", emoji: "🐴", worldId: 1 },
-  { id: "yuki", word: "yuki", name: "結城", reading: "ゆうき", emoji: "🎴", worldId: 1 },
-  { id: "nasu", word: "nasu", name: "那須", reading: "なす", emoji: "🏹", worldId: 1 },
-  { id: "soun", word: "soun", name: "早雲", reading: "そううん", emoji: "☁️", worldId: 1 },
+  { id: "hojosoun", word: "hojosoun", name: "北条早雲", reading: "ほうじょうそううん", emoji: "🔺", description: "せんごくだいみょうの さきがけ" },
+  { id: "iinaomasa", word: "iinaomasa", name: "井伊直政", reading: "いいなおまさ", emoji: "🔴", description: "とくがわの あかぞなえの たいしょう" },
+  { id: "saitodosan", word: "saitodosan", name: "斎藤道三", reading: "さいとうどうさん", emoji: "🐍", description: "まむしと よばれた みのの ぶしょう" },
+  { id: "otomosorin", word: "otomosorin", name: "大友宗麟", reading: "おおともそうりん", emoji: "⛪", description: "きゅうしゅうの キリシタンだいみょう" },
+  { id: "maedakeiji", word: "maedakeiji", name: "前田慶次", reading: "まえだけいじ", emoji: "🌪️", description: "ゆうめいな かぶきもの" },
+  { id: "shimasakon", word: "shimasakon", name: "島左近", reading: "しまさこん", emoji: "⚔️", description: "みつなりが ほれこんだ ぶしょう" },
+  { id: "odanobunaga", word: "odanobunaga", name: "織田信長", reading: "おだのぶなが", emoji: "🔥", description: "てんかとういつを めざした おわりの ぶしょう" },
+  { id: "hojoujiyasu", word: "hojoujiyasu", name: "北条氏康", reading: "ほうじょううじやす", emoji: "🛡️", description: "おだわらじょうの めいくん" },
+  { id: "ukitahideie", word: "ukitahideie", name: "宇喜多秀家", reading: "うきたひでいえ", emoji: "🌖", description: "ごたいろうの ひとり" },
 
-  // ── World 2「ぶしょうの やかた」: 5もじ ──
-  { id: "shiro", word: "shiro", name: "城", reading: "しろ", emoji: "🏯", worldId: 2 },
-  { id: "ninja", word: "ninja", name: "忍者", reading: "にんじゃ", emoji: "🥷", worldId: 2 },
-  { id: "yoroi", word: "yoroi", name: "鎧", reading: "よろい", emoji: "🥋", worldId: 2 },
-  { id: "nanbu", word: "nanbu", name: "南部", reading: "なんぶ", emoji: "🏔️", worldId: 2 },
-  { id: "ukita", word: "ukita", name: "宇喜多", reading: "うきた", emoji: "🌖", worldId: 2 },
-  { id: "nagao", word: "nagao", name: "長尾", reading: "ながお", emoji: "🐉", worldId: 2 },
-  { id: "otomo", word: "otomo", name: "大友", reading: "おおとも", emoji: "⛪", worldId: 2 },
-  { id: "ouchi", word: "ouchi", name: "大内", reading: "おおうち", emoji: "🎎", worldId: 2 },
-  { id: "naito", word: "naito", name: "内藤", reading: "ないとう", emoji: "🛡️", worldId: 2 },
-  { id: "dosan", word: "dosan", name: "道三", reading: "どうさん", emoji: "🐍", worldId: 2 },
-  { id: "arima", word: "arima", name: "有馬", reading: "ありま", emoji: "🌸", worldId: 2 },
-  { id: "omura", word: "omura", name: "大村", reading: "おおむら", emoji: "🌷", worldId: 2 },
+  { id: "morimotonari", word: "morimotonari", name: "毛利元就", reading: "もうりもとなり", emoji: "⭐", description: "さんぼんの やの おしえで ゆうめい" },
+  { id: "datemasamune", word: "datemasamune", name: "伊達政宗", reading: "だてまさむね", emoji: "🌙", description: "どくがんりゅうと よばれた ぶしょう" },
+  { id: "azainagamasa", word: "azainagamasa", name: "浅井長政", reading: "あざいながまさ", emoji: "🏯", description: "のぶながの いもうとの おっと" },
+  { id: "maedatoshiie", word: "maedatoshiie", name: "前田利家", reading: "まえだとしいえ", emoji: "🌾", description: "かがひゃくまんごくの そ" },
+  { id: "kurodakanbee", word: "kurodakanbee", name: "黒田官兵衛", reading: "くろだかんべえ", emoji: "🧠", description: "ひでよしの てんさいぐんし" },
+  { id: "katokiyomasa", word: "katokiyomasa", name: "加藤清正", reading: "かとうきよまさ", emoji: "🐯", description: "とらたいじの でんせつ。せいしょこ" },
+  { id: "todotakatora", word: "todotakatora", name: "藤堂高虎", reading: "とうどうたかとら", emoji: "🏯", description: "しろづくりの めいじん" },
+  { id: "niwanagahide", word: "niwanagahide", name: "丹羽長秀", reading: "にわながひで", emoji: "🍚", description: "のぶながが たよった ちゅうしん" },
+  { id: "takedashingen", word: "takedashingen", name: "武田信玄", reading: "たけだしんげん", emoji: "🐎", description: "かいの とら。ふうりんかざんの はた" },
+  { id: "uesugikenshin", word: "uesugikenshin", name: "上杉謙信", reading: "うえすぎけんしん", emoji: "❄️", description: "えちごの りゅう。いくさの かみさま" },
+  { id: "naoekanetsugu", word: "naoekanetsugu", name: "直江兼続", reading: "なおえかねつぐ", emoji: "❤️", description: "あいの かぶとで しられる ちゅうしん" },
+  { id: "morinagayoshi", word: "morinagayoshi", name: "森長可", reading: "もりながよし", emoji: "🐗", description: "おにむしゃと おそれられた" },
 
-  // ── World 3「おおきな しろ」: 6もじ ──
-  { id: "takeda", word: "takeda", name: "武田", reading: "たけだ", emoji: "🐎", worldId: 3 },
-  { id: "uesugi", word: "uesugi", name: "上杉", reading: "うえすぎ", emoji: "❄️", worldId: 3 },
-  { id: "sanada", word: "sanada", name: "真田", reading: "さなだ", emoji: "🦌", worldId: 3 },
-  { id: "kabuto", word: "kabuto", name: "兜", reading: "かぶと", emoji: "🪖", worldId: 3 },
-  { id: "katana", word: "katana", name: "刀", reading: "かたな", emoji: "⚔️", worldId: 3 },
-  { id: "ieyasu", word: "ieyasu", name: "家康", reading: "いえやす", emoji: "☘️", worldId: 3 },
-  { id: "akechi", word: "akechi", name: "明智", reading: "あけち", emoji: "🟣", worldId: 3 },
-  { id: "satake", word: "satake", name: "佐竹", reading: "さたけ", emoji: "🎍", worldId: 3 },
-  { id: "satomi", word: "satomi", name: "里見", reading: "さとみ", emoji: "🐕", worldId: 3 },
-  { id: "mogami", word: "mogami", name: "最上", reading: "もがみ", emoji: "🌾", worldId: 3 },
-  { id: "yamana", word: "yamana", name: "山名", reading: "やまな", emoji: "⛰️", worldId: 3 },
-  { id: "sagara", word: "sagara", name: "相良", reading: "さがら", emoji: "🍵", worldId: 3 },
+  { id: "tokugawaieyasu", word: "tokugawaieyasu", name: "徳川家康", reading: "とくがわいえやす", emoji: "☘️", description: "えどばくふを ひらいた しょうぐん" },
+  { id: "sanadayukimura", word: "sanadayukimura", name: "真田幸村", reading: "さなだゆきむら", emoji: "🦌", description: "にほんいちの つわものと よばれた" },
+  { id: "takenakahanbee", word: "takenakahanbee", name: "竹中半兵衛", reading: "たけなかはんべえ", emoji: "🧠", description: "ひでよしを ささえた めいぐんし" },
+  { id: "kurodanagamasa", word: "kurodanagamasa", name: "黒田長政", reading: "くろだながまさ", emoji: "🐚", description: "せきがはらで だいかつやく" },
+  { id: "hondatadakatsu", word: "hondatadakatsu", name: "本多忠勝", reading: "ほんだただかつ", emoji: "🦌", description: "とくがわ してんのうの もうしょう" },
+  { id: "sanadamasayuki", word: "sanadamasayuki", name: "真田昌幸", reading: "さなだまさゆき", emoji: "🦊", description: "とくがわを なんども くるしめた" },
+  { id: "mogamiyoshiaki", word: "mogamiyoshiaki", name: "最上義光", reading: "もがみよしあき", emoji: "🌾", description: "でわの だいみょう" },
+  { id: "shibatakatsuie", word: "shibatakatsuie", name: "柴田勝家", reading: "しばたかついえ", emoji: "🔥", description: "おにしばたと よばれた もうしょう" },
+  { id: "akechimitsuhide", word: "akechimitsuhide", name: "明智光秀", reading: "あけちみつひで", emoji: "🟣", description: "ほんのうじで のぶながを たおした" },
+  { id: "ishidamitsunari", word: "ishidamitsunari", name: "石田三成", reading: "いしだみつなり", emoji: "⚖️", description: "せきがはらで にしぐんを ひきいた" },
+  { id: "ryuzojitakanobu", word: "ryuzojitakanobu", name: "龍造寺隆信", reading: "りゅうぞうじたかのぶ", emoji: "🐉", description: "ひぜんの くまと よばれた" },
+  { id: "hosokawatadaoki", word: "hosokawatadaoki", name: "細川忠興", reading: "ほそかわただおき", emoji: "🎴", description: "ぶゆうと ちゃのゆの ぶしょう" },
+  { id: "yamamotokansuke", word: "yamamotokansuke", name: "山本勘助", reading: "やまもとかんすけ", emoji: "📜", description: "たけだの でんせつの ぐんし" },
+  { id: "kikkawamotoharu", word: "kikkawamotoharu", name: "吉川元春", reading: "きっかわもとはる", emoji: "🏹", description: "もうりりょうせんの ひとり" },
+  { id: "otaniyoshitsugu", word: "otaniyoshitsugu", name: "大谷吉継", reading: "おおたによしつぐ", emoji: "🎭", description: "みつなりの しんゆう" },
 
-  // ── World 4「がっせんの の」: 7もじ ──
-  { id: "shimazu", word: "shimazu", name: "島津", reading: "しまづ", emoji: "➕", worldId: 4 },
-  { id: "samurai", word: "samurai", name: "侍", reading: "さむらい", emoji: "🗡️", worldId: 4 },
-  { id: "sengoku", word: "sengoku", name: "戦国", reading: "せんごく", emoji: "🏯", worldId: 4 },
-  { id: "bushido", word: "bushido", name: "武士道", reading: "ぶしどう", emoji: "🎌", worldId: 4 },
-  { id: "shingen", word: "shingen", name: "信玄", reading: "しんげん", emoji: "🔥", worldId: 4 },
-  { id: "kenshin", word: "kenshin", name: "謙信", reading: "けんしん", emoji: "⚔️", worldId: 4 },
-  { id: "imagawa", word: "imagawa", name: "今川", reading: "いまがわ", emoji: "🎏", worldId: 4 },
-  { id: "asakura", word: "asakura", name: "朝倉", reading: "あさくら", emoji: "🌸", worldId: 4 },
-  { id: "kyogoku", word: "kyogoku", name: "京極", reading: "きょうごく", emoji: "⛩️", worldId: 4 },
-  { id: "ryuzoji", word: "ryuzoji", name: "龍造寺", reading: "りゅうぞうじ", emoji: "🐉", worldId: 4 },
-  { id: "tsutsui", word: "tsutsui", name: "筒井", reading: "つつい", emoji: "🥁", worldId: 4 },
-  { id: "akizuki", word: "akizuki", name: "秋月", reading: "あきづき", emoji: "🌕", worldId: 4 },
-
-  // ── World 5「てんかの みち」: 8もじ いじょう ──
-  { id: "nobunaga", word: "nobunaga", name: "信長", reading: "のぶなが", emoji: "🔥", worldId: 5 },
-  { id: "hideyoshi", word: "hideyoshi", name: "秀吉", reading: "ひでよし", emoji: "🌅", worldId: 5 },
-  { id: "masamune", word: "masamune", name: "政宗", reading: "まさむね", emoji: "🌙", worldId: 5 },
-  { id: "yukimura", word: "yukimura", name: "幸村", reading: "ゆきむら", emoji: "🦌", worldId: 5 },
-  { id: "tokugawa", word: "tokugawa", name: "徳川", reading: "とくがわ", emoji: "🌿", worldId: 5 },
-  { id: "mitsuhide", word: "mitsuhide", name: "光秀", reading: "みつひで", emoji: "🟣", worldId: 5 },
-  { id: "mitsunari", word: "mitsunari", name: "三成", reading: "みつなり", emoji: "⚖️", worldId: 5 },
-  { id: "motonari", word: "motonari", name: "元就", reading: "もとなり", emoji: "⭐", worldId: 5 },
-  { id: "hosokawa", word: "hosokawa", name: "細川", reading: "ほそかわ", emoji: "🎴", worldId: 5 },
-  { id: "tachibana", word: "tachibana", name: "立花", reading: "たちばな", emoji: "🌼", worldId: 5 },
-  { id: "kanetsugu", word: "kanetsugu", name: "兼続", reading: "かねつぐ", emoji: "❤️", worldId: 5 },
-  { id: "chosokabe", word: "chosokabe", name: "長宗我部", reading: "ちょうそかべ", emoji: "🌊", worldId: 5 }
+  { id: "imagawayoshimoto", word: "imagawayoshimoto", name: "今川義元", reading: "いまがわよしもと", emoji: "🎏", description: "かいどういちの ゆみとり" },
+  { id: "asakurayoshikage", word: "asakurayoshikage", name: "朝倉義景", reading: "あさくらよしかげ", emoji: "🌸", description: "えちぜんの だいみょう" },
+  { id: "shimazuyoshihiro", word: "shimazuyoshihiro", name: "島津義弘", reading: "しまづよしひろ", emoji: "➕", description: "きゅうしゅうの つよい ぶしょう" },
+  { id: "fukushimamasanori", word: "fukushimamasanori", name: "福島正則", reading: "ふくしままさのり", emoji: "🍶", description: "しずがたけの しちほんやり" },
+  { id: "satakeyoshishige", word: "satakeyoshishige", name: "佐竹義重", reading: "さたけよししげ", emoji: "🎍", description: "おにと よばれた ひたちの ぶしょう" },
+  { id: "miyoshinagayoshi", word: "miyoshinagayoshi", name: "三好長慶", reading: "みよしながよし", emoji: "🗡️", description: "きないを しはいした ぶしょう" },
+  { id: "takigawakazumasu", word: "takigawakazumasu", name: "滝川一益", reading: "たきがわかずます", emoji: "🔫", description: "てっぽうと いくさの めいじん" },
+  { id: "yamagatamasakage", word: "yamagatamasakage", name: "山県昌景", reading: "やまがたまさかげ", emoji: "🐎", description: "たけだの あかぞなえの たいしょう" },
+  { id: "toyotomihideyoshi", word: "toyotomihideyoshi", name: "豊臣秀吉", reading: "とよとみひでよし", emoji: "🌅", description: "ひゃくしょうから てんかびとに なった" },
+  { id: "matsunagahisahide", word: "matsunagahisahide", name: "松永久秀", reading: "まつながひさひで", emoji: "💣", description: "せんごくの きょうゆうと いわれた" },
+  { id: "nabeshimanaoshige", word: "nabeshimanaoshige", name: "鍋島直茂", reading: "なべしまなおしげ", emoji: "🦞", description: "りゅうぞうじを ささえた ぶしょう" },
+  { id: "chosokabemotochika", word: "chosokabemotochika", name: "長宗我部元親", reading: "ちょうそかべもとちか", emoji: "🌊", description: "しこくを ほぼ とういつした" },
+  { id: "tachibanamuneshige", word: "tachibanamuneshige", name: "立花宗茂", reading: "たちばなむねしげ", emoji: "🌼", description: "さいきょうと よばれた ぶしょう" },
+  { id: "kobayakawatakakage", word: "kobayakawatakakage", name: "小早川隆景", reading: "こばやかわたかかげ", emoji: "🌊", description: "もうりりょうせんの ひとり" },
+  { id: "hachisukamasakatsu", word: "hachisukamasakatsu", name: "蜂須賀正勝", reading: "はちすかまさかつ", emoji: "🌊", description: "ひでよしを ささえた ぶしょう" }
 ];
 
 export function getWord(id: string): GameWord {
@@ -94,7 +81,7 @@ export function getWord(id: string): GameWord {
 }
 
 export function wordsByWorld(worldId: number): GameWord[] {
-  return WORDS.filter((entry) => entry.worldId === worldId);
+  return WORDS.filter((entry) => worldForLength(entry.word.length).id === worldId);
 }
 
 export function worldWordIds(worldId: number): string[] {

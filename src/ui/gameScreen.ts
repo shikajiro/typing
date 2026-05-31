@@ -28,6 +28,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
 
   const figureEl = el("div", { class: "creature", text: "❔" });
   const nameEl = el("div", { class: "word-name" });
+  const descEl = el("div", { class: "word-desc" });
   const tilesEl = el("div", { class: "word-tiles" });
   const hintEl = el("div", { class: "finger-hint" });
   const countEl = el("div", { class: "count" });
@@ -41,6 +42,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   const stage = el("main", { class: "stage" }, [
     el("div", { class: "egg-area" }, [figureEl]),
     nameEl,
+    descEl,
     tilesEl,
     listenBtn,
     hintEl
@@ -90,6 +92,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
     figureEl.textContent = "❔";
     figureEl.classList.remove("pop");
     nameEl.replaceChildren(ruby(entry.name, entry.reading));
+    descEl.textContent = entry.description;
 
     tileEls = Array.from(entry.word).map((letter) => el("div", { class: "tile", text: letter.toUpperCase() }));
     tilesEl.replaceChildren(...tileEls);

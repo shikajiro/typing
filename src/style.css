@@ -187,9 +187,20 @@ ruby rt {
   font-weight: 700;
 }
 
+.word-desc {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #5d4037;
+  max-width: 32ch;
+  text-align: center;
+}
+
 .word-tiles {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 760px;
 }
 
 .word-tiles.shake {
@@ -197,15 +208,15 @@ ruby rt {
 }
 
 .tile {
-  width: 64px;
-  height: 64px;
-  border-radius: 14px;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
   background: #ffffff;
   border: 4px solid #cfd8dc;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 1.7rem;
   font-weight: 900;
   color: #b0bec5;
 }
@@ -390,8 +401,15 @@ ruby rt {
 
 .zukan-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
   gap: 12px;
+}
+
+.zukan-desc {
+  font-size: 0.78rem;
+  color: #5d4037;
+  margin-top: 4px;
+  line-height: 1.3;
 }
 
 .zukan-cell {

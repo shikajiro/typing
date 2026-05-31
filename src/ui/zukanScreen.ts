@@ -20,7 +20,8 @@ export function renderZukanScreen(ctx: AppContext): () => void {
       return el("div", { class: "zukan-cell" }, [
         el("div", { class: "zukan-emoji", text: entry.emoji }),
         el("div", { class: "zukan-name" }, [ruby(entry.name, entry.reading)]),
-        el("div", { class: "zukan-kana", text: entry.word.toUpperCase() })
+        el("div", { class: "zukan-kana", text: entry.word.toUpperCase() }),
+        el("div", { class: "zukan-desc", text: entry.description })
       ]);
     });
 
