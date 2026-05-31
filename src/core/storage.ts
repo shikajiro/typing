@@ -8,7 +8,7 @@ export interface StorageLike {
   setItem(key: string, value: string): void;
 }
 
-export const progressStorageKey = "doubutsu-typing-progress-v1";
+export const progressStorageKey = "sengoku-typing-progress-v1";
 
 function assertProgressState(value: unknown): asserts value is ProgressState {
   const candidate = value as Partial<ProgressState> | null;
@@ -16,7 +16,7 @@ function assertProgressState(value: unknown): asserts value is ProgressState {
   if (
     !candidate ||
     typeof candidate !== "object" ||
-    !Array.isArray(candidate.collectedAnimalIds) ||
+    !Array.isArray(candidate.collectedIds) ||
     !Array.isArray(candidate.unlockedWorldIds) ||
     !settings ||
     typeof settings.assistLevel !== "number" ||
@@ -35,9 +35,7 @@ export function loadProgress(storage: StorageLike): ProgressState {
   try {
     const parsed: unknown = JSON.parse(raw);
     assertProgressState(parsed);
-    console.debug("[typing:storage] Loaded progress", {
-      collected: parsed.collectedAnimalIds.length
-    });
+    console.debug("[typing:storage] Loaded progress", { collected: parsed.collectedIds.length });
     return parsed;
   } catch (error) {
     console.error("[typing:storage] Failed to load progress", { error });
@@ -47,7 +45,5 @@ export function loadProgress(storage: StorageLike): ProgressState {
 
 export function saveProgress(storage: StorageLike, progress: ProgressState): void {
   storage.setItem(progressStorageKey, JSON.stringify(progress));
-  console.debug("[typing:storage] Saved progress", {
-    collected: progress.collectedAnimalIds.length
-  });
+  console.debug("[typing:storage] Saved progress", { collected: progress.collectedIds.length });
 }

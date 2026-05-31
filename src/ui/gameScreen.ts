@@ -1,23 +1,23 @@
-// ゲーム本編：どうぶつの英単語を打つ → たまごがかえる → ずかんに登録 → ワールドクリア。
+// ゲーム本編：戦国ことばのローマ字を打つ → 武将/武具が あらわれる → なかまに/ずかんに登録 → ワールドクリア。
 
 import { getKeySpec } from "../core/keyboardLayout";
-import { collectAnimal, isWorldCleared, unlockWorld } from "../core/progress";
+import { collectId, isWorldCleared, unlockWorld } from "../core/progress";
 import { createWordSession, expectedCode, pressKey, type WordSession } from "../core/typingEngine";
-import { type Animal, animalsByWorld, worldAnimalIds } from "../data/animals";
+import { type GameWord, wordsByWorld, worldWordIds } from "../data/words";
 import { getWorld, nextWorldId } from "../data/worlds";
-import { clear, el } from "./dom";
+import { clear, el, ruby } from "./dom";
 import { KeyboardView } from "./keyboardView";
 import type { AppContext } from "./types";
 
 export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   const world = getWorld(worldId);
-  const allAnimals = animalsByWorld(worldId);
-  const worldIds = worldAnimalIds(worldId);
+  const allWords = wordsByWorld(worldId);
+  const memberIds = worldWordIds(worldId);
 
   const startProgress = ctx.getProgress();
-  const uncollected = allAnimals.filter((animal) => !startProgress.collectedAnimalIds.includes(animal.id));
+  const uncollected = allWords.filter((entry) => !startProgress.collectedIds.includes(entry.id));
   const isReplay = uncollected.length === 0;
-  const queue = isReplay ? allAnimals : uncollected;
+  const queue = isReplay ? allWords : uncollected;
   let queueIndex = 0;
 
   const timeouts: number[] = [];
@@ -26,8 +26,8 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   const keyboard = new KeyboardView();
   keyboard.setAssistLevel(startProgress.settings.assistLevel);
 
-  const creatureEl = el("div", { class: "creature", text: "🥚" });
-  const kanaEl = el("div", { class: "kana" });
+  const figureEl = el("div", { class: "creature", text: "❔" });
+  const nameEl = el("div", { class: "word-name" });
   const tilesEl = el("div", { class: "word-tiles" });
   const hintEl = el("div", { class: "finger-hint" });
   const countEl = el("div", { class: "count" });
@@ -35,25 +35,23 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   const listenBtn = el("button", {
     class: "listen-button",
     text: "🔊 きいてみる",
-    onClick: () => ctx.audio.speakWord(queue[queueIndex].word)
+    onClick: () => ctx.audio.speak(queue[queueIndex].reading)
   });
 
   const stage = el("main", { class: "stage" }, [
-    el("div", { class: "egg-area" }, [creatureEl]),
-    kanaEl,
+    el("div", { class: "egg-area" }, [figureEl]),
+    nameEl,
     tilesEl,
     listenBtn,
     hintEl
   ]);
 
-  const topbar = el("header", { class: "topbar" }, [
-    el("button", { class: "back-button", text: "← もどる", onClick: () => ctx.navigate({ name: "worldmap" }) }),
-    el("div", { class: "world-name", text: world.name }),
-    countEl
-  ]);
-
   const screen = el("div", { class: "screen game-screen" }, [
-    topbar,
+    el("header", { class: "topbar" }, [
+      el("button", { class: "back-button", text: "← もどる", onClick: () => ctx.navigate({ name: "worldmap" }) }),
+      el("div", { class: "world-name", text: world.name }),
+      countEl
+    ]),
     stage,
     el("div", { class: "keyboard-wrap" }, [keyboard.el])
   ]);
@@ -61,8 +59,8 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   let tileEls: HTMLElement[] = [];
 
   function updateCount(): void {
-    const collected = worldIds.filter((id) => ctx.getProgress().collectedAnimalIds.includes(id)).length;
-    countEl.textContent = `${collected}/${worldIds.length}`;
+    const collected = memberIds.filter((id) => ctx.getProgress().collectedIds.includes(id)).length;
+    countEl.textContent = `${collected}/${memberIds.length}`;
   }
 
   function updateTiles(): void {
@@ -85,35 +83,35 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
     hintEl.replaceChildren(document.createTextNode("つぎは "), swatch, document.createTextNode(` ${spec.fingerLabel}`));
   }
 
-  function startWord(animal: Animal): void {
-    session = createWordSession(animal.word);
-    creatureEl.textContent = "🥚";
-    creatureEl.classList.remove("pop");
-    kanaEl.textContent = animal.kana;
+  function startWord(entry: GameWord): void {
+    session = createWordSession(entry.word);
+    figureEl.textContent = "❔";
+    figureEl.classList.remove("pop");
+    nameEl.replaceChildren(ruby(entry.name, entry.reading));
 
-    tileEls = Array.from(animal.word).map((letter) => el("div", { class: "tile", text: letter.toUpperCase() }));
+    tileEls = Array.from(entry.word).map((letter) => el("div", { class: "tile", text: letter.toUpperCase() }));
     tilesEl.replaceChildren(...tileEls);
 
     keyboard.setAssistLevel(ctx.getProgress().settings.assistLevel);
     keyboard.highlightNext(expectedCode(session));
     updateTiles();
     updateHint();
-    ctx.audio.speakWord(animal.word);
+    ctx.audio.speak(entry.reading);
   }
 
-  function hatch(animal: Animal): void {
-    creatureEl.textContent = animal.emoji;
-    creatureEl.classList.add("pop");
+  function reveal(entry: GameWord): void {
+    figureEl.textContent = entry.emoji;
+    figureEl.classList.add("pop");
     keyboard.highlightNext(null);
-    hintEl.textContent = `やったね！ ${animal.kana} を ゲット！`;
+    hintEl.replaceChildren(ruby(entry.name, entry.reading), document.createTextNode(" を ゲット！"));
     ctx.audio.sfx("hatch");
-    ctx.audio.speakWord(animal.word);
+    ctx.audio.speak(entry.reading);
 
-    const updated = ctx.update((progress) => collectAnimal(progress, animal.id));
+    const updated = ctx.update((progress) => collectId(progress, entry.id));
     updateTiles();
     updateCount();
 
-    const cleared = !isReplay && isWorldCleared(updated, worldIds);
+    const cleared = !isReplay && isWorldCleared(updated, memberIds);
     if (cleared) {
       const nextId = nextWorldId(worldId);
       if (nextId !== null) {
@@ -133,16 +131,16 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
 
   function showWorldClear(nextId: number | null): void {
     ctx.audio.sfx("clear");
-    const message = nextId !== null ? "つぎの ワールドが あいたよ！" : "ぜんぶ あつめたね！すごい！";
+    const message = nextId !== null ? "つぎの ステージが あいたよ！" : "ぜんぶ あつめたね！てんかとういつ！";
     clear(stage);
     stage.append(
       el("div", { class: "clear-area" }, [
         el("div", { class: "clear-emoji", text: "🎉" }),
-        el("div", { class: "clear-title", text: "クリア！ おめでとう！" }),
+        el("div", { class: "clear-title", text: "クリア！ あっぱれ！" }),
         el("div", { class: "clear-sub", text: message }),
         el("button", {
           class: "big-button",
-          text: "ワールドに もどる",
+          text: "ステージに もどる",
           onClick: () => ctx.navigate({ name: "worldmap" })
         })
       ])
@@ -150,6 +148,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   }
 
   function onKey(event: KeyboardEvent): void {
+    if (event.repeat) return;
     if (!/^Key[A-Z]$/.test(event.code)) return;
     event.preventDefault();
     if (session.done) return;
@@ -172,7 +171,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
     updateHint();
 
     if (result.completed) {
-      hatch(queue[queueIndex]);
+      reveal(queue[queueIndex]);
     }
   }
 

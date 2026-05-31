@@ -37,16 +37,16 @@ export function renderMenuScreen(ctx: AppContext): () => void {
   });
 
   const screen = el("div", { class: "screen menu-screen" }, [
-    el("div", { class: "title", text: "どうぶつ タイピング ずかん" }),
-    el("div", { class: "title-emoji", text: "🐱🐶🦁🐸🐯" }),
+    el("div", { class: "title", text: "せんごく タイピング" }),
+    el("div", { class: "title-emoji", text: "🏯⚔️🐎🥷🔥" }),
     el("div", { class: "menu-buttons" }, [
       el("button", { class: "big-button", text: "🖐 ゆびの たいそう", onClick: () => ctx.navigate({ name: "warmup" }) }),
       el("button", {
         class: "big-button primary",
-        text: "🥚 どうぶつを あつめる",
+        text: "⚔️ せんごくの ことばを あつめる",
         onClick: () => ctx.navigate({ name: "worldmap" })
       }),
-      el("button", { class: "big-button", text: "📖 ずかん を みる", onClick: () => ctx.navigate({ name: "zukan" }) })
+      el("button", { class: "big-button", text: "📖 ことば ずかん", onClick: () => ctx.navigate({ name: "zukan" }) })
     ]),
     el("div", { class: "settings" }, [
       el("div", { class: "settings-row" }, [el("span", { class: "settings-label", text: "おたすけ：" }), ...assistButtons]),

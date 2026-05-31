@@ -21,6 +21,16 @@ export function el<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
+// 漢字にふりがなを振る（小2でも武将名・用語を読めるように）。
+export function ruby(base: string, furigana: string): HTMLElement {
+  const node = document.createElement("ruby");
+  node.append(document.createTextNode(base));
+  const rt = document.createElement("rt");
+  rt.textContent = furigana;
+  node.append(rt);
+  return node;
+}
+
 export function clear(node: HTMLElement): void {
   node.replaceChildren();
 }

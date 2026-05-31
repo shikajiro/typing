@@ -1,4 +1,4 @@
-// 音まわり。英単語の読み上げ（SpeechSynthesis）と効果音（Web Audio で生成、アセット0）。
+// 音まわり。ことばの読み上げ（SpeechSynthesis）と効果音（Web Audio で生成、アセット0）。
 // 機能が無いブラウザでは静かにスキップする（能力チェック。エラーの握りつぶしではない）。
 
 export type SfxKind = "correct" | "wrong" | "hatch" | "clear";
@@ -37,15 +37,16 @@ export class GameAudio {
     console.debug("[typing:audio] enabled", { enabled });
   }
 
-  speakWord(word: string): void {
+  // 戦国ことばは日本語の読み（ひらがな）を ja-JP で読み上げる。
+  speak(text: string, lang = "ja-JP"): void {
     if (!this.enabled) return;
     if (!("speechSynthesis" in window)) {
       console.debug("[typing:audio] speechSynthesis not available");
       return;
     }
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = "en-US";
-    utterance.rate = 0.8;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+    utterance.rate = 0.85;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
   }

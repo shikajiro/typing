@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  collectAnimal,
+  collectId,
   createInitialProgress,
   hasCollected,
   isWorldCleared,
@@ -13,40 +13,40 @@ import {
 describe("progress: createInitialProgress", () => {
   it("starts with nothing collected, only world 1 unlocked, full assist and sound on", () => {
     expect(createInitialProgress()).toEqual({
-      collectedAnimalIds: [],
+      collectedIds: [],
       unlockedWorldIds: [1],
       settings: { assistLevel: 1, soundOn: true }
     });
   });
 });
 
-describe("progress: collecting animals", () => {
-  it("adds a collected animal without mutating the previous state", () => {
+describe("progress: collecting", () => {
+  it("adds a collected id without mutating the previous state", () => {
     const initial = createInitialProgress();
-    const next = collectAnimal(initial, "cat");
+    const next = collectId(initial, "oda");
 
-    expect(next.collectedAnimalIds).toEqual(["cat"]);
-    expect(initial.collectedAnimalIds).toEqual([]);
-    expect(hasCollected(next, "cat")).toBe(true);
-    expect(hasCollected(initial, "cat")).toBe(false);
+    expect(next.collectedIds).toEqual(["oda"]);
+    expect(initial.collectedIds).toEqual([]);
+    expect(hasCollected(next, "oda")).toBe(true);
+    expect(hasCollected(initial, "oda")).toBe(false);
   });
 
-  it("does not add the same animal twice", () => {
-    const next = collectAnimal(collectAnimal(createInitialProgress(), "cat"), "cat");
-    expect(next.collectedAnimalIds).toEqual(["cat"]);
+  it("does not add the same id twice", () => {
+    const next = collectId(collectId(createInitialProgress(), "oda"), "oda");
+    expect(next.collectedIds).toEqual(["oda"]);
   });
 });
 
 describe("progress: world clearing and unlocking", () => {
-  it("reports a world cleared only when every one of its animals is collected", () => {
-    const world = ["cat", "dog", "pig"];
+  it("reports a world cleared only when every member is collected", () => {
+    const world = ["oda", "mori", "date"];
     let progress = createInitialProgress();
-    progress = collectAnimal(progress, "cat");
-    progress = collectAnimal(progress, "dog");
+    progress = collectId(progress, "oda");
+    progress = collectId(progress, "mori");
 
     expect(isWorldCleared(progress, world)).toBe(false);
 
-    progress = collectAnimal(progress, "pig");
+    progress = collectId(progress, "date");
     expect(isWorldCleared(progress, world)).toBe(true);
   });
 

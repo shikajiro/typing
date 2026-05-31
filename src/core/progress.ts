@@ -1,5 +1,6 @@
-// プレイヤーの進捗：集めたどうぶつ・解放したワールド・設定。
+// プレイヤーの進捗：なかまにした武将（id）・解放したワールド・設定。
 // すべて不変更新（前の状態を壊さない）。保存は storage.ts が担当する。
+// id はテーマ非依存（武将でも動物でも同じ仕組みで使える）。
 
 export type AssistLevel = 1 | 2 | 3;
 
@@ -9,43 +10,40 @@ export interface Settings {
 }
 
 export interface ProgressState {
-  collectedAnimalIds: string[];
+  collectedIds: string[];
   unlockedWorldIds: number[];
   settings: Settings;
 }
 
 export function createInitialProgress(): ProgressState {
   return {
-    collectedAnimalIds: [],
+    collectedIds: [],
     unlockedWorldIds: [1],
     settings: { assistLevel: 1, soundOn: true }
   };
 }
 
-export function hasCollected(progress: ProgressState, animalId: string): boolean {
-  return progress.collectedAnimalIds.includes(animalId);
+export function hasCollected(progress: ProgressState, id: string): boolean {
+  return progress.collectedIds.includes(id);
 }
 
-export function collectAnimal(progress: ProgressState, animalId: string): ProgressState {
-  if (hasCollected(progress, animalId)) {
+export function collectId(progress: ProgressState, id: string): ProgressState {
+  if (hasCollected(progress, id)) {
     return progress;
   }
   const next: ProgressState = {
     ...progress,
-    collectedAnimalIds: [...progress.collectedAnimalIds, animalId]
+    collectedIds: [...progress.collectedIds, id]
   };
-  console.debug("[typing:progress] Collected animal", {
-    animalId,
-    total: next.collectedAnimalIds.length
-  });
+  console.debug("[typing:progress] Collected", { id, total: next.collectedIds.length });
   return next;
 }
 
-export function isWorldCleared(progress: ProgressState, worldAnimalIds: string[]): boolean {
-  if (worldAnimalIds.length === 0) {
+export function isWorldCleared(progress: ProgressState, worldMemberIds: string[]): boolean {
+  if (worldMemberIds.length === 0) {
     return false;
   }
-  return worldAnimalIds.every((id) => hasCollected(progress, id));
+  return worldMemberIds.every((id) => hasCollected(progress, id));
 }
 
 export function isWorldUnlocked(progress: ProgressState, worldId: number): boolean {

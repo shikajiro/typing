@@ -23,11 +23,11 @@ describe("storage", () => {
 
   it("saves and loads progress through the configured key", () => {
     const storage = createMemoryStorage();
-    const progress = { ...createInitialProgress(), collectedAnimalIds: ["cat", "dog"] };
+    const progress = { ...createInitialProgress(), collectedIds: ["oda", "takeda"] };
 
     saveProgress(storage, progress);
 
-    expect(storage.data[progressStorageKey]).toContain("cat");
+    expect(storage.data[progressStorageKey]).toContain("oda");
     expect(loadProgress(storage)).toEqual(progress);
   });
 
