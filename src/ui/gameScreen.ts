@@ -1,18 +1,19 @@
-// ゲーム本編：戦国ことばのローマ字を打つ → 武将/武具が あらわれる → なかまに/ずかんに登録 → ワールドクリア。
+// ゲーム本編：ことばのローマ字を打つ → 人物/できごとが あらわれる → ずかんに登録 → ワールドクリア。
+// あつかうテーマ（せんごく／にほんし）は collection で受け取る。
 
 import { getKeySpec } from "../core/keyboardLayout";
 import { collectId, isWorldCleared, unlockWorld } from "../core/progress";
 import { createWordSession, expectedCode, pressKey, progressChars, type WordSession } from "../core/typingEngine";
-import { type GameWord, romajiOf, wordsByWorld, worldWordIds } from "../data/words";
-import { getWorld, nextWorldId } from "../data/worlds";
+import type { Collection } from "../data/collections";
+import { type GameWord, romajiOf } from "../data/words";
 import { clear, el, renderRuby, ruby } from "./dom";
 import { KeyboardView } from "./keyboardView";
 import type { AppContext } from "./types";
 
-export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
-  const world = getWorld(worldId);
-  const allWords = wordsByWorld(worldId);
-  const memberIds = worldWordIds(worldId);
+export function renderGameScreen(ctx: AppContext, collection: Collection, worldId: number): () => void {
+  const world = collection.getWorld(worldId);
+  const allWords = collection.wordsByWorld(worldId);
+  const memberIds = allWords.map((entry) => entry.id);
 
   const startProgress = ctx.getProgress();
   const uncollected = allWords.filter((entry) => !startProgress.collectedIds.includes(entry.id));
@@ -29,6 +30,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   const figureEl = el("div", { class: "creature", text: "❔" });
   const imgEl = el("img", { class: "portrait" });
   imgEl.style.display = "none";
+  const tagEl = el("div", { class: "kind-tag" });
   const nameEl = el("div", { class: "word-name" });
   const descEl = el("div", { class: "word-desc" });
   const tilesEl = el("div", { class: "word-tiles" });
@@ -43,6 +45,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
 
   const stage = el("main", { class: "stage" }, [
     el("div", { class: "egg-area" }, [figureEl, imgEl]),
+    tagEl,
     nameEl,
     descEl,
     tilesEl,
@@ -54,7 +57,11 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
 
   const screen = el("div", { class: "screen game-screen" }, [
     el("header", { class: "topbar" }, [
-      el("button", { class: "back-button", text: "← もどる", onClick: () => ctx.navigate({ name: "worldmap" }) }),
+      el("button", {
+        class: "back-button",
+        text: "← もどる",
+        onClick: () => ctx.navigate({ name: "worldmap", theme: collection.key })
+      }),
       el("div", { class: "world-name", text: world.name }),
       countEl
     ]),
@@ -97,6 +104,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
     figureEl.style.display = "";
     imgEl.style.display = "none";
     imgEl.classList.remove("pop");
+    tagEl.textContent = entry.kind === "event" ? "📜 できごと" : "";
     nameEl.replaceChildren(ruby(entry.name, entry.reading));
     descEl.replaceChildren(...renderRuby(entry.description));
 
@@ -131,7 +139,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
 
     const cleared = !isReplay && isWorldCleared(updated, memberIds);
     if (cleared) {
-      const nextId = nextWorldId(worldId);
+      const nextId = collection.nextWorldId(worldId);
       if (nextId !== null) {
         ctx.update((progress) => unlockWorld(progress, nextId));
       }
@@ -150,7 +158,9 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
   function showWorldClear(nextId: number | null): void {
     ctx.audio.sfx("clear");
     keyboardWrap.style.display = "none";
-    const message = nextId !== null ? "つぎの ステージが あいたよ！" : "ぜんぶ あつめたね！てんかとういつ！";
+    const allDoneMessage =
+      collection.key === "sengoku" ? "ぜんぶ あつめたね！てんかとういつ！" : "ぜんぶ あつめたね！れきし はかせ だ！";
+    const message = nextId !== null ? "つぎの ステージが あいたよ！" : allDoneMessage;
     clear(stage);
     stage.append(
       el("div", { class: "clear-area" }, [
@@ -160,7 +170,7 @@ export function renderGameScreen(ctx: AppContext, worldId: number): () => void {
         el("button", {
           class: "big-button",
           text: "ステージに もどる",
-          onClick: () => ctx.navigate({ name: "worldmap" })
+          onClick: () => ctx.navigate({ name: "worldmap", theme: collection.key })
         })
       ])
     );
