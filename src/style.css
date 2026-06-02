@@ -458,6 +458,132 @@ ruby rt {
   color: #607d8b;
 }
 
+.zukan-cell.is-clickable {
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.zukan-cell.is-clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 0 #00000018;
+}
+
+.zukan-cell.is-clickable:active {
+  transform: translateY(0);
+}
+
+.zukan-cell.is-clickable:focus-visible {
+  outline: 4px solid #ffb300;
+  outline-offset: 2px;
+}
+
+/* ---- zukan 詳細モーダル ---- */
+.zukan-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: #00000066;
+}
+
+.zukan-detail-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 22px 24px;
+  background: var(--card);
+  border-radius: 22px;
+  box-shadow: 0 12px 40px #00000044;
+  text-align: center;
+  animation: pop 0.35s ease;
+}
+
+.detail-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  background: #eceff1;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.detail-portrait {
+  max-height: 200px;
+  max-width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px #00000033;
+  background: #fff;
+}
+
+.detail-emoji {
+  font-size: 5rem;
+  line-height: 1;
+}
+
+.detail-name {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #b71c1c;
+}
+
+.detail-kana {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #607d8b;
+  letter-spacing: 0.08em;
+}
+
+.detail-rows {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.detail-row {
+  text-align: left;
+  background: #f7fbff;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #5d4037;
+}
+
+.detail-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 2px;
+}
+
+.detail-desc {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #5d4037;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
 /* ---- clear ---- */
 .clear-area {
   display: flex;
