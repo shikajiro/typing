@@ -44,9 +44,23 @@ export function renderMenuScreen(ctx: AppContext): () => void {
       el("button", {
         class: "big-button primary",
         text: "⚔️ せんごくの ことばを あつめる",
-        onClick: () => ctx.navigate({ name: "worldmap" })
+        onClick: () => ctx.navigate({ name: "worldmap", theme: "sengoku" })
       }),
-      el("button", { class: "big-button", text: "📖 ことば ずかん", onClick: () => ctx.navigate({ name: "zukan" }) })
+      el("button", {
+        class: "big-button primary",
+        text: "📜 にほんしを あつめる",
+        onClick: () => ctx.navigate({ name: "worldmap", theme: "nihonshi" })
+      }),
+      el("button", {
+        class: "big-button",
+        text: "📖 せんごく ずかん",
+        onClick: () => ctx.navigate({ name: "zukan", theme: "sengoku" })
+      }),
+      el("button", {
+        class: "big-button",
+        text: "📚 にほんし ずかん",
+        onClick: () => ctx.navigate({ name: "zukan", theme: "nihonshi" })
+      })
     ]),
     el("div", { class: "settings" }, [
       el("div", { class: "settings-row" }, [el("span", { class: "settings-label", text: "おたすけ：" }), ...assistButtons]),

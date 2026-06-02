@@ -1,13 +1,15 @@
-// ずかん。あつめた戦国ことばは絵と名前が見える。まだのものは「？？？」。
-// あつめた武将をクリック/Enter すると、その武将の詳細モーダルを開く。
+// ずかん。あつめたことばは絵と名前が見える。まだのものは「？？？」。
+// あつめた人物/できごとをクリック/Enter すると、その詳細モーダルを開く。
+// あつかうテーマ（せんごく／にほんし）は collection で受け取り、見出しもテーマで切り替える。
 
-import { romajiOf, wordsByWorld, type GameWord } from "../data/words";
-import { WORLDS } from "../data/worlds";
+import type { Collection } from "../data/collections";
+import { romajiOf, type GameWord } from "../data/words";
 import { el, renderRuby, ruby } from "./dom";
 import type { AppContext } from "./types";
 
-export function renderZukanScreen(ctx: AppContext): () => void {
+export function renderZukanScreen(ctx: AppContext, collection: Collection): () => void {
   const progress = ctx.getProgress();
+  const labels = collection.detailLabels;
 
   let overlay: HTMLElement | null = null;
   let lastFocused: HTMLElement | null = null;
@@ -54,14 +56,14 @@ export function renderZukanScreen(ctx: AppContext): () => void {
     closeBtn.setAttribute("aria-label", "とじる");
 
     const rows: HTMLElement[] = [];
-    if (entry.life) rows.push(detailRow("🗓", "生まれ〜没", renderRuby(entry.life)));
-    if (entry.domain) rows.push(detailRow("🏯", "領国", renderRuby(entry.domain)));
-    if (entry.battles) rows.push(detailRow("⚔️", "有名な戦い・できごと", renderRuby(entry.battles)));
-    if (entry.trivia) rows.push(detailRow("💡", "豆知識", renderRuby(entry.trivia)));
+    if (entry.life) rows.push(detailRow(labels.life[0], labels.life[1], renderRuby(entry.life)));
+    if (entry.domain) rows.push(detailRow(labels.place[0], labels.place[1], renderRuby(entry.domain)));
+    if (entry.battles) rows.push(detailRow(labels.deed[0], labels.deed[1], renderRuby(entry.battles)));
+    if (entry.trivia) rows.push(detailRow(labels.trivia[0], labels.trivia[1], renderRuby(entry.trivia)));
 
-    const card = el("div", { class: "zukan-detail-card" }, [
-      closeBtn,
-      head,
+    const cardChildren: Array<HTMLElement> = [closeBtn, head];
+    if (entry.kind === "event") cardChildren.push(el("div", { class: "kind-tag", text: "📜 できごと" }));
+    cardChildren.push(
       el("div", { class: "detail-name" }, [ruby(entry.name, entry.reading)]),
       el("div", { class: "detail-kana", text: romajiOf(entry).toUpperCase() }),
       el("button", {
@@ -71,7 +73,9 @@ export function renderZukanScreen(ctx: AppContext): () => void {
       }),
       el("div", { class: "detail-rows" }, rows),
       el("div", { class: "detail-desc" }, renderRuby(entry.description))
-    ]);
+    );
+
+    const card = el("div", { class: "zukan-detail-card" }, cardChildren);
     // カード内クリックでは閉じない（背景クリックだけ閉じる）。
     card.addEventListener("click", (event) => event.stopPropagation());
 
@@ -84,8 +88,8 @@ export function renderZukanScreen(ctx: AppContext): () => void {
     closeBtn.focus();
   }
 
-  const sections = WORLDS.flatMap((world) => {
-    const cells = wordsByWorld(world.id).map((entry) => {
+  const sections = collection.worlds.flatMap((world) => {
+    const cells = collection.wordsByWorld(world.id).map((entry) => {
       const collected = progress.collectedIds.includes(entry.id);
       if (!collected) {
         return el("div", { class: "zukan-cell is-unknown" }, [
@@ -100,12 +104,14 @@ export function renderZukanScreen(ctx: AppContext): () => void {
       } else {
         head = el("div", { class: "zukan-emoji", text: entry.emoji });
       }
-      const cell = el("div", { class: "zukan-cell is-clickable" }, [
-        head,
+      const cellChildren: Array<HTMLElement> = [head];
+      if (entry.kind === "event") cellChildren.push(el("div", { class: "kind-tag", text: "📜 できごと" }));
+      cellChildren.push(
         el("div", { class: "zukan-name" }, [ruby(entry.name, entry.reading)]),
         el("div", { class: "zukan-kana", text: romajiOf(entry).toUpperCase() }),
         el("div", { class: "zukan-desc" }, renderRuby(entry.description))
-      ]);
+      );
+      const cell = el("div", { class: "zukan-cell is-clickable" }, cellChildren);
       // 取得済みセルはクリック/キーボードで詳細を開く。
       cell.setAttribute("role", "button");
       cell.tabIndex = 0;
@@ -125,11 +131,14 @@ export function renderZukanScreen(ctx: AppContext): () => void {
     ];
   });
 
+  const collectedCount = collection.allEntries.filter((entry) => progress.collectedIds.includes(entry.id)).length;
+  const zukanTitle = collection.key === "sengoku" ? "せんごく ずかん" : "にほんし ずかん";
+
   const screen = el("div", { class: "screen zukan-screen" }, [
     el("header", { class: "topbar" }, [
       el("button", { class: "back-button", text: "← もどる", onClick: () => ctx.navigate({ name: "menu" }) }),
-      el("div", { class: "world-name", text: "ずかん" }),
-      el("div", { class: "count", text: `${progress.collectedIds.length}` })
+      el("div", { class: "world-name", text: zukanTitle }),
+      el("div", { class: "count", text: `${collectedCount}` })
     ]),
     el("div", { class: "zukan-body" }, sections)
   ]);

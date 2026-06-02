@@ -215,6 +215,21 @@ ruby rt {
   text-align: center;
 }
 
+/* 「できごと」バッジ（人物のときは空なので非表示）。 */
+.kind-tag {
+  align-self: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #6a1b9a;
+  background: #f3e5f5;
+  border-radius: 999px;
+  padding: 2px 12px;
+}
+
+.kind-tag:empty {
+  display: none;
+}
+
 .word-tiles {
   display: flex;
   flex-wrap: wrap;

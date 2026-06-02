@@ -2,6 +2,7 @@
 
 import "./style.css";
 import { GameAudio } from "./audio/audio";
+import { getCollection } from "./data/collections";
 import type { ProgressState } from "./core/progress";
 import { loadProgress, saveProgress } from "./core/storage";
 import { renderGameScreen } from "./ui/gameScreen";
@@ -34,13 +35,13 @@ function navigate(route: Route): void {
       teardown = renderWarmupScreen(ctx);
       break;
     case "worldmap":
-      teardown = renderWorldMapScreen(ctx);
+      teardown = renderWorldMapScreen(ctx, getCollection(route.theme));
       break;
     case "game":
-      teardown = renderGameScreen(ctx, route.worldId);
+      teardown = renderGameScreen(ctx, getCollection(route.theme), route.worldId);
       break;
     case "zukan":
-      teardown = renderZukanScreen(ctx);
+      teardown = renderZukanScreen(ctx, getCollection(route.theme));
       break;
   }
 }
