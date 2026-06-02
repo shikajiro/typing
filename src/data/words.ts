@@ -14,7 +14,7 @@ export interface GameWord {
   emoji: string;
   description: string;
   image?: string;
-  life?: string; // 生没年。数字と〜のみ（例 "1534〜1582"）。ふりがな不要。
+  life?: string; // 生没年。数字・〜・「ごろ」など（例 "1534〜1582"、"1456ごろ〜1519"）。ふりがな不要。
   domain?: string; // 出身・領国。"漢字[よみ]" 記法（例 "尾張[おわり]"）。
   battles?: string; // 有名な戦い・できごと。"漢字[よみ]" 記法。
   trivia?: string; // ひとこと豆知識。"漢字[よみ]" 記法。

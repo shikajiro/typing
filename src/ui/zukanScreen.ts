@@ -18,6 +18,7 @@ export function renderZukanScreen(ctx: AppContext): () => void {
 
   function closeDetail(): void {
     if (!overlay) return;
+    console.debug("[typing:zukan] closeDetail");
     overlay.remove();
     overlay = null;
     window.removeEventListener("keydown", onOverlayKeydown);
@@ -36,6 +37,7 @@ export function renderZukanScreen(ctx: AppContext): () => void {
   }
 
   function openDetail(entry: GameWord, trigger: HTMLElement): void {
+    console.debug("[typing:zukan] openDetail", { id: entry.id });
     closeDetail(); // 二重表示を防ぐ
     lastFocused = trigger;
 
