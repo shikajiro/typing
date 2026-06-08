@@ -6,7 +6,9 @@ import { clear, el, renderRuby, ruby } from "./dom";
 import type { AppContext } from "./types";
 
 function quizTitle(collection: Collection): string {
-  return collection.key === "sengoku" ? "せんごく クイズ" : "にほんし クイズ";
+  if (collection.key === "sengoku") return "せんごく クイズ";
+  if (collection.key === "nihonshi") return "にほんし クイズ";
+  return "にほんぶんか クイズ";
 }
 
 function choiceLabel(choice: QuizChoice): HTMLElement {
@@ -16,6 +18,9 @@ function choiceLabel(choice: QuizChoice): HTMLElement {
   ];
   if (choice.kind === "event") {
     children.push(el("span", { class: "kind-tag", text: "📜 できごと" }));
+  }
+  if (choice.kind === "culture") {
+    children.push(el("span", { class: "kind-tag", text: "🏛️ 文化財" }));
   }
   return el("span", { class: "quiz-choice-label" }, children);
 }

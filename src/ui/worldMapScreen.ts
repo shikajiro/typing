@@ -1,5 +1,5 @@
 // ステージ選択。あいているステージはあそべる、まだのステージはカギ付き。
-// あつかうテーマ（せんごく／にほんし）は collection で受け取る。
+// あつかうテーマ（せんごく／にほんし／にほんぶんか）は collection で受け取る。
 
 import { isWorldUnlocked } from "../core/progress";
 import type { Collection } from "../data/collections";

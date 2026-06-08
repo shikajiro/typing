@@ -37,8 +37,8 @@ export function renderMenuScreen(ctx: AppContext): () => void {
   });
 
   const screen = el("div", { class: "screen menu-screen" }, [
-    el("div", { class: "title", text: "せんごく タイピング" }),
-    el("div", { class: "title-emoji", text: "🏯⚔️🐎🥷🔥" }),
+    el("div", { class: "title", text: "にほん タイピング" }),
+    el("div", { class: "title-emoji", text: "🏯⚔️📜🏛️🎨" }),
     el("div", { class: "menu-buttons" }, [
       el("button", { class: "big-button", text: "🖐 ゆびの たいそう", onClick: () => ctx.navigate({ name: "warmup" }) }),
       el("button", {
@@ -50,6 +50,11 @@ export function renderMenuScreen(ctx: AppContext): () => void {
         class: "big-button primary",
         text: "📜 にほんしを あつめる",
         onClick: () => ctx.navigate({ name: "worldmap", theme: "nihonshi" })
+      }),
+      el("button", {
+        class: "big-button primary",
+        text: "🏛️ にほんぶんかを あつめる",
+        onClick: () => ctx.navigate({ name: "worldmap", theme: "nihonbunka" })
       }),
       el("button", {
         class: "big-button",
@@ -70,6 +75,16 @@ export function renderMenuScreen(ctx: AppContext): () => void {
         class: "big-button",
         text: "🧠 にほんし クイズ",
         onClick: () => ctx.navigate({ name: "quiz", theme: "nihonshi" })
+      }),
+      el("button", {
+        class: "big-button",
+        text: "🏺 にほんぶんか ずかん",
+        onClick: () => ctx.navigate({ name: "zukan", theme: "nihonbunka" })
+      }),
+      el("button", {
+        class: "big-button",
+        text: "🧠 にほんぶんか クイズ",
+        onClick: () => ctx.navigate({ name: "quiz", theme: "nihonbunka" })
       })
     ]),
     el("div", { class: "settings" }, [

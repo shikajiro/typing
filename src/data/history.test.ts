@@ -84,6 +84,7 @@ describe("collections registry", () => {
   it("returns each theme and throws on unknown (no silent fallback)", () => {
     expect(getCollection("sengoku").key).toBe("sengoku");
     expect(getCollection("nihonshi").key).toBe("nihonshi");
+    expect(getCollection("nihonbunka").key).toBe("nihonbunka");
     // @ts-expect-error unknown theme is rejected at runtime
     expect(() => getCollection("showa")).toThrow();
   });
@@ -94,6 +95,14 @@ describe("collections registry", () => {
     expect(nihonshi.nextWorldId(11)).toBe(12);
     expect(nihonshi.nextWorldId(14)).toBeNull();
     expect(() => nihonshi.getWorld(99)).toThrow();
+  });
+
+  it("nihonbunka first world is unlockable and worlds link in order", () => {
+    const nihonbunka = getCollection("nihonbunka");
+    expect(nihonbunka.firstWorldId).toBe(21);
+    expect(nihonbunka.nextWorldId(21)).toBe(22);
+    expect(nihonbunka.nextWorldId(24)).toBeNull();
+    expect(() => nihonbunka.getWorld(99)).toThrow();
   });
 
   it("nihonshi wordsByWorld covers all entries with no drops", () => {

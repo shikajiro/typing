@@ -19,7 +19,7 @@ export interface GameWord {
   battles?: string; // 有名な戦い・できごと。"漢字[よみ]" 記法。
   trivia?: string; // ひとこと豆知識。"漢字[よみ]" 記法。
   worldId?: number; // ワールドを明示で指定するとき（日本史は時代ごとに固定）。無ければ文字数で自動割当（戦国）。
-  kind?: "person" | "event"; // 集める対象の種類。既定は人物。日本史の「できごと」は "event"。
+  kind?: "person" | "event" | "culture"; // 集める対象の種類。既定は人物。日本史の「できごと」は "event"、文化財は "culture"。
 }
 
 const COMMONS = "https://upload.wikimedia.org/wikipedia/commons/thumb";

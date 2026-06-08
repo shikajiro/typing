@@ -1,5 +1,5 @@
 // ゲーム本編：ことばのローマ字を打つ → 人物/できごとが あらわれる → ずかんに登録 → ワールドクリア。
-// あつかうテーマ（せんごく／にほんし）は collection で受け取る。
+// あつかうテーマ（せんごく／にほんし／にほんぶんか）は collection で受け取る。
 
 import { getKeySpec } from "../core/keyboardLayout";
 import { collectId, isWorldCleared, unlockWorld } from "../core/progress";
@@ -9,6 +9,12 @@ import { type GameWord, romajiOf } from "../data/words";
 import { clear, el, renderRuby, ruby } from "./dom";
 import { KeyboardView } from "./keyboardView";
 import type { AppContext } from "./types";
+
+function kindTagText(entry: GameWord): string {
+  if (entry.kind === "event") return "📜 できごと";
+  if (entry.kind === "culture") return "🏛️ 文化財";
+  return "";
+}
 
 export function renderGameScreen(ctx: AppContext, collection: Collection, worldId: number): () => void {
   const world = collection.getWorld(worldId);
@@ -104,7 +110,7 @@ export function renderGameScreen(ctx: AppContext, collection: Collection, worldI
     figureEl.style.display = "";
     imgEl.style.display = "none";
     imgEl.classList.remove("pop");
-    tagEl.textContent = entry.kind === "event" ? "📜 できごと" : "";
+    tagEl.textContent = kindTagText(entry);
     nameEl.replaceChildren(ruby(entry.name, entry.reading));
     descEl.replaceChildren(...renderRuby(entry.description));
 
@@ -158,9 +164,7 @@ export function renderGameScreen(ctx: AppContext, collection: Collection, worldI
   function showWorldClear(nextId: number | null): void {
     ctx.audio.sfx("clear");
     keyboardWrap.style.display = "none";
-    const allDoneMessage =
-      collection.key === "sengoku" ? "ぜんぶ あつめたね！てんかとういつ！" : "ぜんぶ あつめたね！れきし はかせ だ！";
-    const message = nextId !== null ? "つぎの ステージが あいたよ！" : allDoneMessage;
+    const message = nextId !== null ? "つぎの ステージが あいたよ！" : collection.completeMessage;
     clear(stage);
     stage.append(
       el("div", { class: "clear-area" }, [
