@@ -63,13 +63,28 @@ export function renderMenuScreen(ctx: AppContext): () => void {
       }),
       el("button", {
         class: "big-button",
+        text: "🧠 せんごく クイズ",
+        onClick: () => ctx.navigate({ name: "quiz", theme: "sengoku" })
+      }),
+      el("button", {
+        class: "big-button",
         text: "📚 にほんし ずかん",
         onClick: () => ctx.navigate({ name: "zukan", theme: "nihonshi" })
       }),
       el("button", {
         class: "big-button",
+        text: "🧠 にほんし クイズ",
+        onClick: () => ctx.navigate({ name: "quiz", theme: "nihonshi" })
+      }),
+      el("button", {
+        class: "big-button",
         text: "🏺 にほんぶんか ずかん",
         onClick: () => ctx.navigate({ name: "zukan", theme: "nihonbunka" })
+      }),
+      el("button", {
+        class: "big-button",
+        text: "🧠 にほんぶんか クイズ",
+        onClick: () => ctx.navigate({ name: "quiz", theme: "nihonbunka" })
       })
     ]),
     el("div", { class: "settings" }, [
