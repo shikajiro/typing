@@ -1,11 +1,17 @@
 // ずかん。あつめたことばは絵と名前が見える。まだのものは「？？？」。
 // あつめた人物/できごとをクリック/Enter すると、その詳細モーダルを開く。
-// あつかうテーマ（せんごく／にほんし）は collection で受け取り、見出しもテーマで切り替える。
+// あつかうテーマ（せんごく／にほんし／にほんぶんか）は collection で受け取り、見出しもテーマで切り替える。
 
 import type { Collection } from "../data/collections";
 import { romajiOf, type GameWord } from "../data/words";
 import { el, renderRuby, ruby } from "./dom";
 import type { AppContext } from "./types";
+
+function kindTagText(entry: GameWord): string {
+  if (entry.kind === "event") return "📜 できごと";
+  if (entry.kind === "culture") return "🏛️ 文化財";
+  return "";
+}
 
 export function renderZukanScreen(ctx: AppContext, collection: Collection): () => void {
   const progress = ctx.getProgress();
@@ -62,7 +68,8 @@ export function renderZukanScreen(ctx: AppContext, collection: Collection): () =
     if (entry.trivia) rows.push(detailRow(labels.trivia[0], labels.trivia[1], renderRuby(entry.trivia)));
 
     const cardChildren: Array<HTMLElement> = [closeBtn, head];
-    if (entry.kind === "event") cardChildren.push(el("div", { class: "kind-tag", text: "📜 できごと" }));
+    const kindText = kindTagText(entry);
+    if (kindText) cardChildren.push(el("div", { class: "kind-tag", text: kindText }));
     cardChildren.push(
       el("div", { class: "detail-name" }, [ruby(entry.name, entry.reading)]),
       el("div", { class: "detail-kana", text: romajiOf(entry).toUpperCase() }),
@@ -105,7 +112,8 @@ export function renderZukanScreen(ctx: AppContext, collection: Collection): () =
         head = el("div", { class: "zukan-emoji", text: entry.emoji });
       }
       const cellChildren: Array<HTMLElement> = [head];
-      if (entry.kind === "event") cellChildren.push(el("div", { class: "kind-tag", text: "📜 できごと" }));
+      const kindText = kindTagText(entry);
+      if (kindText) cellChildren.push(el("div", { class: "kind-tag", text: kindText }));
       cellChildren.push(
         el("div", { class: "zukan-name" }, [ruby(entry.name, entry.reading)]),
         el("div", { class: "zukan-kana", text: romajiOf(entry).toUpperCase() }),
@@ -132,12 +140,10 @@ export function renderZukanScreen(ctx: AppContext, collection: Collection): () =
   });
 
   const collectedCount = collection.allEntries.filter((entry) => progress.collectedIds.includes(entry.id)).length;
-  const zukanTitle = collection.key === "sengoku" ? "せんごく ずかん" : "にほんし ずかん";
-
   const screen = el("div", { class: "screen zukan-screen" }, [
     el("header", { class: "topbar" }, [
       el("button", { class: "back-button", text: "← もどる", onClick: () => ctx.navigate({ name: "menu" }) }),
-      el("div", { class: "world-name", text: zukanTitle }),
+      el("div", { class: "world-name", text: collection.zukanTitle }),
       el("div", { class: "count", text: `${collectedCount}` })
     ]),
     el("div", { class: "zukan-body" }, sections)

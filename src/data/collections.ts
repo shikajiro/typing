@@ -1,14 +1,15 @@
-// テーマ（あつめるコレクション）の登録所。今は「せんごく」と「にほんし」の2つ。
+// テーマ（あつめるコレクション）の登録所。今は「せんごく」「にほんし」「にほんぶんか」の3つ。
 // 各画面（gameScreen/zukanScreen/worldMapScreen）は Collection を受け取り、
-// どのテーマでも同じ収集ループで動く。汎用テーマ機構ではなく、この2つ分だけの最小パラメータ化。
+// どのテーマでも同じ収集ループで動く。汎用テーマ機構ではなく、この3つ分だけの最小パラメータ化。
 
 import type { GameWord } from "./words";
 import { WORDS, wordsByWorld as sengokuWordsByWorld } from "./words";
 import type { World } from "./worlds";
 import { WORLDS } from "./worlds";
 import { HISTORY_WORDS, HISTORY_WORLDS } from "./history";
+import { CULTURE_WORDS, CULTURE_WORLDS } from "./culture";
 
-export type ThemeKey = "sengoku" | "nihonshi";
+export type ThemeKey = "sengoku" | "nihonshi" | "nihonbunka";
 
 // ずかん詳細の見出し（テーマで言い回しを変える）。[絵文字, ラベル] の組。
 export interface DetailLabels {
@@ -21,6 +22,8 @@ export interface DetailLabels {
 export interface Collection {
   key: ThemeKey;
   title: string; // worldmap ヘッダの見出し
+  zukanTitle: string; // ずかんヘッダの見出し
+  completeMessage: string; // 最終ステージクリア時のメッセージ
   worlds: World[];
   firstWorldId: number; // 入口として常に解放するワールド
   allEntries: GameWord[]; // ずかんの総数カウント用
@@ -50,6 +53,8 @@ function findNextWorldId(worlds: World[], id: number): number | null {
 const sengoku: Collection = {
   key: "sengoku",
   title: "せんごく ステージ",
+  zukanTitle: "せんごく ずかん",
+  completeMessage: "ぜんぶ あつめたね！てんかとういつ！",
   worlds: WORLDS,
   firstWorldId: 1,
   allEntries: WORDS,
@@ -67,6 +72,8 @@ const sengoku: Collection = {
 const nihonshi: Collection = {
   key: "nihonshi",
   title: "にほんし ステージ",
+  zukanTitle: "にほんし ずかん",
+  completeMessage: "ぜんぶ あつめたね！れきし はかせ だ！",
   worlds: HISTORY_WORLDS,
   firstWorldId: 11,
   allEntries: HISTORY_WORDS,
@@ -81,7 +88,26 @@ const nihonshi: Collection = {
   }
 };
 
-export const COLLECTIONS: Record<ThemeKey, Collection> = { sengoku, nihonshi };
+const nihonbunka: Collection = {
+  key: "nihonbunka",
+  title: "にほんぶんか ステージ",
+  zukanTitle: "にほんぶんか ずかん",
+  completeMessage: "ぜんぶ あつめたね！ぶんか はかせ だ！",
+  worlds: CULTURE_WORLDS,
+  firstWorldId: 21,
+  allEntries: CULTURE_WORDS,
+  wordsByWorld: (worldId) => CULTURE_WORDS.filter((entry) => entry.worldId === worldId), // ジャンルごとに明示割当
+  getWorld: (id) => findWorld(CULTURE_WORLDS, id),
+  nextWorldId: (id) => findNextWorldId(CULTURE_WORLDS, id),
+  detailLabels: {
+    life: ["🗓", "時代"],
+    place: ["📍", "ばしょ"],
+    deed: ["👀", "見どころ"],
+    trivia: ["💡", "豆知識"]
+  }
+};
+
+export const COLLECTIONS: Record<ThemeKey, Collection> = { sengoku, nihonshi, nihonbunka };
 
 export function getCollection(key: ThemeKey): Collection {
   const collection = COLLECTIONS[key];
