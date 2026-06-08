@@ -7,6 +7,7 @@ import type { ProgressState } from "./core/progress";
 import { loadProgress, saveProgress } from "./core/storage";
 import { renderGameScreen } from "./ui/gameScreen";
 import { renderMenuScreen } from "./ui/menuScreen";
+import { renderQuizScreen } from "./ui/quizScreen";
 import type { AppContext, Route } from "./ui/types";
 import { renderWarmupScreen } from "./ui/warmupScreen";
 import { renderWorldMapScreen } from "./ui/worldMapScreen";
@@ -42,6 +43,9 @@ function navigate(route: Route): void {
       break;
     case "zukan":
       teardown = renderZukanScreen(ctx, getCollection(route.theme));
+      break;
+    case "quiz":
+      teardown = renderQuizScreen(ctx, getCollection(route.theme));
       break;
   }
 }
